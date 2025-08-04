@@ -1,1 +1,6 @@
-{}
+{
+    "files.associations": {
+        "constants.h": "c",
+        "math.h": "c"
+    }
+}

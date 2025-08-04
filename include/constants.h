@@ -1,7 +1,21 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define WINDOW_WIDTH 1280
-#define WINDOW_HEIGHT 960
+#define WINDOW_WIDTH 1800
+#define WINDOW_HEIGHT 1000
+
+#define NB_ASTRES 9
+
+#define DIST_MERCURY 80
+#define DIST_VENUS 150
+#define DIST_EARTH 200
+#define DIST_MARS 270
+#define DIST_JUPITER 400
+#define DIST_SATURN 500
+#define DIST_URANUS 600
+#define DIST_NEPTUNE 700
+
+#define MASS_SUN 2e30
+#define MASS_EARTH 6e24
 
 #endif

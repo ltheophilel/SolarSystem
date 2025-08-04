@@ -1,11 +1,12 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "constants.h"
+#include "compute.h"
 #include "display.h"
+#include "main.h"
 
-
-void pause();
 
 int main() 
 {
@@ -14,21 +15,27 @@ int main()
     SDL_Surface *screen = NULL;
     const char title[] = "Universe";
     create_window(&window, title, SDL_WINDOW_SHOWN);
-
     screen = SDL_GetWindowSurface(window);
-    const int RECTANGLE_WIDTH = WINDOW_WIDTH/2;
-    const int RECTANGLE_HEIGHT = WINDOW_HEIGHT/2;
 
-    SDL_Surface *rectangle = NULL;
-    create_rectangle(screen, &rectangle,
-                    RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
+    /* Astres Creation */
 
-    place_centered(window, screen, rectangle, 
-                RECTANGLE_WIDTH, RECTANGLE_HEIGHT);
+    Astre Astres[NB_ASTRES];
+
+    const int radiusArray[NB_ASTRES] = {40, 5, 10, 10, 8, 25, 20, 16, 16};
+    Uint8 colourArray[NB_ASTRES][3] = {{255, 255, 255}, 
+    {200, 200, 200}, {220, 230, 160}, {127, 127, 255}, {255, 127, 127},
+    {255, 255, 220}, {255, 255, 127}, {127, 255, 210}, {50, 50, 255}};
+    const int distArray[NB_ASTRES] = {0, DIST_MERCURY, DIST_VENUS, DIST_EARTH, 
+    DIST_MARS, DIST_JUPITER, DIST_SATURN, DIST_URANUS, DIST_NEPTUNE};
+
+    construct_astres(Astres, radiusArray, distArray, colourArray);
+    
+    /* Placement */
+    place(window, screen, Astres);
+
     pause();
-    SDL_FreeSurface(rectangle);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+
+    quit_universe(window, Astres);
     return 0;
 }
 

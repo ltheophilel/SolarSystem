@@ -15,28 +15,48 @@ bool is_in_disk(int x, int y, int radius) {
 }
 
 
-void create_disk(SDL_Surface *surface,
-                int radius, Uint8 red, Uint8 green, Uint8 blue) 
+SDL_Texture* create_disk(SDL_Renderer *renderer,
+                         int radius,
+                         Uint8 red, Uint8 green, Uint8 blue)
 {
+    int diameter = 2 * radius;
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0, diameter, diameter, 32, SDL_PIXELFORMAT_RGBA8888);
+
+    SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
     if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
-    Uint32 white = SDL_MapRGB(surface->format, red, green, blue);
+
+    Uint32 color = SDL_MapRGBA(surface->format, red, green, blue, 255);  // opaque
     Uint8 *pixels = (Uint8 *)surface->pixels;
     int pitch = surface->pitch;
-    const int min_x = 0;
-    const int max_x = 2*radius;
 
-    const int min_y = 0;
-    const int max_y = 2*radius;
-
-    for (int x = min_x ; x < max_x; x++) {
-        for (int y = min_y ; y < max_y ; y++) {
-            if (is_in_disk(x,y,radius)) {
-               if (x >= 0 && x < surface->w && y >= 0 && y < surface->h) { // ? out Of Bounds double check, to be moved to is in disk.
-                   Uint32 *pixelPtr = (Uint32 *)(pixels + y * pitch + x * surface->format->BytesPerPixel);
-                   *pixelPtr = white;
-                }
+    for (int x = 0; x < diameter; ++x) {
+        for (int y = 0; y < diameter; ++y) {
+            if (is_in_disk(x, y, radius)) {
+                Uint32 *pixelPtr = (Uint32 *)(pixels + y * pitch + x * 4); // 4 bytes per pixel (RGBA8888)
+                *pixelPtr = color;
             }
         }
     }
+
     if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
+    SDL_FreeSurface(surface);
+    return texture;
+}
+
+
+float mean_sqrt(float a, float b) { // Norme 2
+    return sqrt(a*a + b*b);
+}
+
+
+void update_positions(Astre *Astres, const int *distArray) {
+    for (int i = 1 ; i < NB_ASTRES ; i++) { // Uniform Circular Mouvement
+        Astre *a = &Astres[i];
+        a->angle = a->angle + mean_sqrt(a->vx, a->vy)/distArray[i];
+        a->x = distArray[i]*cos(a->angle) + WINDOW_WIDTH/2;
+        a->y = -distArray[i]*sin(a->angle) + WINDOW_HEIGHT/2;
+    }
 }

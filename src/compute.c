@@ -8,6 +8,22 @@
 #include "compute.h"
 #include "main.h"
 
+
+void second_law_kepler(Astre *Astres) {
+    for (int i = 1; i < NB_ASTRES ; i++) {
+        Astre *a = &Astres[i];
+        double dx = a->x - WINDOW_WIDTH / 2;
+        double dy = a->y - WINDOW_HEIGHT / 2;
+        double r_simu = norm2(dx, dy);
+        double r = r_simu*REDUCTION_FACTOR;
+        double speed = -2*PI*r_simu/sqrt(r*r*r*4*PI/(G*massArray[0]));
+        a->vx = speed*cos(a->angle);
+        a->vy = -speed*sin(a->angle);
+        printf("VITESSE %e\n", speed);
+    }
+}
+
+
 bool is_in_disk(int x, int y, int radius) {
     int dist_x = x-radius;
     int dist_y = y-radius;
@@ -47,7 +63,7 @@ SDL_Texture* create_disk(SDL_Renderer *renderer,
 }
 
 
-float mean_sqrt(float a, float b) { // Norme 2
+double norm2(double a, double b) {
     return sqrt(a*a + b*b);
 }
 
@@ -55,8 +71,45 @@ float mean_sqrt(float a, float b) { // Norme 2
 void update_positions(Astre *Astres, const int *distArray) {
     for (int i = 1 ; i < NB_ASTRES ; i++) { // Uniform Circular Mouvement
         Astre *a = &Astres[i];
-        a->angle = a->angle + mean_sqrt(a->vx, a->vy)/distArray[i];
+        // double diffx = a->x;
+        // double diffy = a->y;
+        a->angle += norm2(a->vx, a->vy)/distArray[i]*1; // dt = 1 ms
         a->x = distArray[i]*cos(a->angle) + WINDOW_WIDTH/2;
         a->y = -distArray[i]*sin(a->angle) + WINDOW_HEIGHT/2;
+/*         diffx -= a->x;
+        diffy -= a->y;
+        printf("DPOS = %e\n", norm2(diffx, diffy)); */
+    }
+}
+
+double compute_distance_inv_cubed(Astre A1,Astre A2) {
+    double dx = (A1.x-A2.x)*REDUCTION_FACTOR;
+    double dy = (A1.y-A2.y)*REDUCTION_FACTOR;
+    double sq_root = norm2(dx,dy); // Can be optimised
+    return 1/(sq_root*sq_root*sq_root); // Invert w/ previous line
+}
+
+
+
+void update_positions_dynamics(Astre *Astres) {
+    float dt = 0.01F;
+    for (int i = 1 ; i < NB_ASTRES ; i++) {
+        Astre *a = &Astres[i];
+        double acceleration_sum_x = 0;
+        double acceleration_sum_y = 0;
+        for (int j = 1 ; j < NB_ASTRES ; j++) {
+            if (i!=j) {
+                double common_part = massArray[j]*compute_distance_inv_cubed(Astres[i],Astres[j]);
+                acceleration_sum_x += common_part*(Astres[j].x-Astres[i].x)*REDUCTION_FACTOR;
+                acceleration_sum_y += common_part*(Astres[j].y-Astres[i].y)*REDUCTION_FACTOR;
+                // printf("%f\n", acceleration_sum_x);
+            }
+        }
+    double acc_factor = 0.5*G*dt;
+    a->vx += acceleration_sum_x*acc_factor;
+    a->vy += acceleration_sum_y*acc_factor;
+    a->x += a->vx*dt*10;
+    a->y += a->vy*dt*10;
+    printf("delta_pos = %e\n", norm2(a->vx*dt, a->vy*dt));
     }
 }

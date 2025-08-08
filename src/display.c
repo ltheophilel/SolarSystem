@@ -22,8 +22,7 @@ int sdl_init()
 int create_window(SDL_Window **window, const char *title, SDL_Renderer **renderer)
 {
     *window = SDL_CreateWindow(title,
-    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-    WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+    SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN, SDL_WINDOW_FULLSCREEN);
 
     if (*window == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
@@ -35,22 +34,22 @@ int create_window(SDL_Window **window, const char *title, SDL_Renderer **rendere
 
 
 void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusArray,
-        const int *distArray, Uint8 colourArray[][3], float speedArray[][2])
+        const int *distArray, Uint8 colourArray[][3])
 {
+    srand(11871214);
     for (int i = 0 ; i < NB_ASTRES ; i++) {
         Astre *a = &Astres[i];
         a->radius = radiusArray[i];
-        a->x = WINDOW_WIDTH/2 + distArray[i];
-        a->y = WINDOW_HEIGHT/2;
-
+        
         a->red = colourArray[i][0];
         a->green = colourArray[i][1];
         a->blue = colourArray[i][2];
-
-        a->vx = speedArray[i][0];
-        a->vy = speedArray[i][1];
-        a->angle = 0;
-
+        
+        a->angle = (rand() % 360)*PI/180;
+        a->x = distArray[i]*cos(a->angle) + WINDOW_WIDTH/2;
+        a->y = -distArray[i]*sin(a->angle) + WINDOW_HEIGHT/2;
+        
+        a->mass = massArray[i];
         a->astre = create_disk(renderer, a->radius, a->red, a->green, a->blue);
     }
 }
@@ -67,8 +66,8 @@ void place(SDL_Renderer *renderer, Astre *Astres)
         }
 
         SDL_Rect position;
-        position.x = a->x - a->radius;
-        position.y = a->y - a->radius;
+        position.x = (int)(a->x - a->radius);
+        position.y = (int)(a->y - a->radius);
         position.w = 2 * a->radius;
         position.h = 2 * a->radius;
 

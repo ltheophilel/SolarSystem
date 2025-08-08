@@ -3,6 +3,15 @@ CC = gcc
 CFLAGS = -Wall -Wextra -g -Iinclude $(shell sdl2-config --cflags)
 LDFLAGS = $(shell sdl2-config --libs) -lm
 
+# make DYNAMICS=1
+ifeq ($(DYNAMICS),1)
+    CFLAGS += -DDYNAMICS
+endif
+
+ifeq ($(ONSCALE),1)
+    CFLAGS += -DONSCALE
+endif
+
 # Source and object files
 SRC_DIR = src
 OBJ_DIR = build

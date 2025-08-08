@@ -1,21 +1,22 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define WINDOW_WIDTH 1800
-#define WINDOW_HEIGHT 1000
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 #define NB_ASTRES 9
+#define PI 3.1415926
+#define G 6.67e-11
+#define TIME_SPEEDUP 1000
 
-#define DIST_MERCURY 80
-#define DIST_VENUS 150
-#define DIST_EARTH 200
-#define DIST_MARS 270
-#define DIST_JUPITER 400
-#define DIST_SATURN 500
-#define DIST_URANUS 600
-#define DIST_NEPTUNE 700
 
-#define MASS_SUN 2e30
-#define MASS_EARTH 6e24
+extern const int radiusArray[NB_ASTRES];
+extern const int distArray[NB_ASTRES];
+#ifdef ONSCALE
+#define REDUCTION_FACTOR 150e6/28.3
+#else
+#define REDUCTION_FACTOR 150e6/100
+#endif
 
+extern const double massArray[NB_ASTRES];
 #endif

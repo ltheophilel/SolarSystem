@@ -1,14 +1,16 @@
-# Model and Simulate a solar system with C and SDL
+# Modelling and Simulating the Solar system in C with SDL2
 
- Prochaines etapes :
 - Ajout evenements fait
 - Calcul positions fait
 - Replacement fait
 - Double buffering et HW acceleration fait
-- AJOUT CHOIX MODE
-- En dynamique
+- AJOUT CHOIX MODE fait
+
+ Prochaines etapes :
+- En dynamique --> integrer avec RK4 :)
 - Traçage Trajectoire
 - Effets de Lumiere
-- Rotation ? Pas visible
+- Meure temps & Optimisation
 - Ajout Satellites Majeurs / Anneaux
 - Infos Survolables
+- Etat Actuel & Vitesse reelle --> https://ssd.jpl.nasa.gov/horizons/app.html#/

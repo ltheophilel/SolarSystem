@@ -11,8 +11,8 @@ bool check_event();
 int create_window(SDL_Window **window,const char *title, SDL_Renderer **renderer);
 
 void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusArray,
-    const int *distArray, Uint8 colourArray[][3], float speedArray[][2]);
-    
+    const int *distArray, Uint8 colourArray[][3]);
+
 void place(SDL_Renderer *renderer, Astre *Astres);
 
 void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres);

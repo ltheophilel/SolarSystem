@@ -12,11 +12,12 @@ struct Astre {
     Uint8 red;
     Uint8 green;
     Uint8 blue;
-    int x;
-    int y;
-    float vx;
-    float vy;
+    double x;
+    double y;
+    double vx;
+    double vy;
     double angle;
+    double mass;
 };
 
 

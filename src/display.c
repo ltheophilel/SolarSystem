@@ -40,17 +40,50 @@ void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusAr
     for (int i = 0 ; i < NB_ASTRES ; i++) {
         Astre *a = &Astres[i];
         a->radius = radiusArray[i];
-        
+
         a->red = colourArray[i][0];
         a->green = colourArray[i][1];
         a->blue = colourArray[i][2];
-        
+
         a->angle = (rand() % 360)*PI/180;
         a->x = distArray[i]*cos(a->angle) + WINDOW_WIDTH/2;
         a->y = -distArray[i]*sin(a->angle) + WINDOW_HEIGHT/2;
-        
+
         a->mass = massArray[i];
         a->astre = create_disk(renderer, a->radius, a->red, a->green, a->blue);
+    }
+}
+
+void init_trajectories(SDL_Renderer* renderer,
+                       SDL_Texture* trajTex[NB_ASTRES])
+{
+    for (int i = 0; i < NB_ASTRES; i++) {
+        trajTex[i] = SDL_CreateTexture(renderer,
+                                            SDL_PIXELFORMAT_RGBA8888,
+                                            SDL_TEXTUREACCESS_TARGET,
+                                            WINDOW_WIDTH,
+                                            WINDOW_HEIGHT);
+        SDL_SetTextureBlendMode(trajTex[i], SDL_BLENDMODE_BLEND);
+
+        SDL_SetRenderTarget(renderer, trajTex[i]);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        SDL_RenderClear(renderer);
+    }
+    SDL_SetRenderTarget(renderer, NULL);
+}
+
+
+void update_trajectory(SDL_Renderer* renderer,
+                       SDL_Texture* trajTex,
+                       int x, int y)
+{
+    if (x >= 0 && x < WINDOW_WIDTH && y >= 0 && y < WINDOW_HEIGHT) {
+        SDL_SetRenderTarget(renderer, trajTex);
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderDrawPoint(renderer, x, y);
+
+        SDL_SetRenderTarget(renderer, NULL);
     }
 }
 
@@ -76,9 +109,10 @@ void place(SDL_Renderer *renderer, Astre *Astres)
 }
 
 
-void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres) {
+void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres, SDL_Texture *trajTextures[NB_ASTRES]) {
     for (int i = 0 ; i < NB_ASTRES ; i++) {
         SDL_DestroyTexture((Astres+i)->astre);
+        SDL_DestroyTexture(trajTextures[i]);
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

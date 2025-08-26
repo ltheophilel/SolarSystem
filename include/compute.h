@@ -12,7 +12,7 @@ void second_law_kepler(Astre *Astres);
 bool is_in_disk(int x, int y, int radius);
 
 SDL_Texture* create_disk(SDL_Renderer *renderer,
-                int radius, Uint8 red, Uint8 green, Uint8 blue);
+                        int radius, Uint8 red, Uint8 green, Uint8 blue);
 
 double norm2(double a, double b);
 

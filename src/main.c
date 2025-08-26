@@ -10,7 +10,7 @@
 #include "main.h"
 
 
-int main() 
+int main()
 {
     sdl_init();
     SDL_Window *window = NULL;
@@ -24,14 +24,16 @@ int main()
     Uint8 colourArray[NB_ASTRES][3] = {{255, 255, 255}, 
     {200, 200, 200}, {220, 230, 160}, {127, 127, 255}, {255, 127, 127},
     {255, 255, 220}, {255, 255, 127}, {127, 255, 210}, {50, 50, 255}};
+    SDL_Texture* trajTextures[NB_ASTRES];
 
+    init_trajectories(renderer, trajTextures);
     construct_astres(renderer, Astres, radiusArray, distArray, colourArray);
     second_law_kepler(Astres);
 
     /* Main Loop */
     bool hold = true;
     int delay_milliseconds = 17;
-    while (hold) { 
+    while (hold) {
         hold = check_event();
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -42,16 +44,20 @@ int main()
         update_positions(Astres, distArray);
         #endif
 
+        for (int i = 1; i < NB_ASTRES; i++) {
+            int x = (int)Astres[i].x;
+            int y = (int)Astres[i].y;
+            update_trajectory(renderer, trajTextures[i], x, y);
+            SDL_RenderCopy(renderer, trajTextures[i], NULL, NULL);
+        }
         place(renderer, Astres);
         /* for (int i = 0; i < NB_ASTRES; i++) {
             printf("Astre %d: x = %f, y = %f\n", i, Astres[i].x, Astres[i].y);
-            // render Astres[i]
         } */
 
         SDL_RenderPresent(renderer);
-        SDL_Delay(delay_milliseconds); 
+        SDL_Delay(delay_milliseconds);
     }
-
-    quit_universe(window,renderer, Astres);
+    quit_universe(window,renderer, Astres, trajTextures);
     return 0;
 }

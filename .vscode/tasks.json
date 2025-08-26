@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+        "label": "Build (make)",
+        "type": "shell",
+        "command": "make",
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        },
+        "problemMatcher": [
+            "$gcc"
+        ]
+    },
+    {
+        "label": "Run solarsystem",
+        "type": "shell",
+        "command": "./solarsystem",
+        "group": "none",
+        "presentation": {
+            "echo": true,
+            "reveal": "always",
+            "focus": false,
+            "panel": "shared"
+        },
+        "problemMatcher": []
+    }
+]
+}

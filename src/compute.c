@@ -19,7 +19,7 @@ void second_law_kepler(Astre *Astres) {
         double speed = -2*PI*r_simu/sqrt(r*r*r*4*PI/(G*massArray[0]));
         a->vx = speed*cos(a->angle);
         a->vy = -speed*sin(a->angle);
-        printf("VITESSE %e\n", speed);
+        // printf("VITESSE %e\n", speed);
     }
 }
 
@@ -68,12 +68,14 @@ double norm2(double a, double b) {
 }
 
 
-void update_positions(Astre *Astres, const int *distArray) {
+void update_positions(Astre *Astres, const int *distArray) 
+{
+    double dt = 1.0F;
     for (int i = 1 ; i < NB_ASTRES ; i++) { // Uniform Circular Mouvement
         Astre *a = &Astres[i];
         // double diffx = a->x;
         // double diffy = a->y;
-        a->angle += norm2(a->vx, a->vy)/distArray[i]*1; // dt = 1 ms
+        a->angle += norm2(a->vx, a->vy)/distArray[i] *dt;
         a->x = distArray[i]*cos(a->angle) + WINDOW_WIDTH/2;
         a->y = -distArray[i]*sin(a->angle) + WINDOW_HEIGHT/2;
 /*         diffx -= a->x;
@@ -82,7 +84,8 @@ void update_positions(Astre *Astres, const int *distArray) {
     }
 }
 
-double compute_distance_inv_cubed(Astre A1,Astre A2) {
+double compute_distance_inv_cubed(Astre A1,Astre A2) 
+{
     double dx = (A1.x-A2.x)*REDUCTION_FACTOR;
     double dy = (A1.y-A2.y)*REDUCTION_FACTOR;
     double sq_root = norm2(dx,dy); // Can be optimised
@@ -90,8 +93,8 @@ double compute_distance_inv_cubed(Astre A1,Astre A2) {
 }
 
 
-
-void update_positions_dynamics(Astre *Astres) {
+void update_positions_dynamics(Astre *Astres) 
+{
     float dt = 0.01F;
     for (int i = 1 ; i < NB_ASTRES ; i++) {
         Astre *a = &Astres[i];

@@ -3,6 +3,8 @@
         "constants.h": "c",
         "math.h": "c",
         "sdl.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "compute.h": "c",
+        "stdio.h": "c"
     }
 }

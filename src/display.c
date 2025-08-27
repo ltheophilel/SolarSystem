@@ -1,4 +1,13 @@
-// DISPLAY
+/**
+ * @file display.c
+ * @author Theophile (ltheophilel on GitHub)
+ * @brief functions related to SDL
+ * @version 0.3
+ * @date 2025-08-27
+ *
+ * @copyright Copyright (c) 2025
+ *
+ */
 #include <SDL2/SDL.h>
 #include <math.h>
 
@@ -8,6 +17,11 @@
 #include "main.h"
 
 
+/**
+ * @brief SDL Init and error catching
+ *
+ * @return int
+ */
 int sdl_init()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER) != 0)
@@ -18,7 +32,14 @@ int sdl_init()
     return 0;
 }
 
-
+/**
+ * @brief Create a window object
+ *
+ * @param window
+ * @param title
+ * @param renderer
+ * @return int
+ */
 int create_window(SDL_Window **window, const char *title, SDL_Renderer **renderer)
 {
     *window = SDL_CreateWindow(title,
@@ -32,9 +53,17 @@ int create_window(SDL_Window **window, const char *title, SDL_Renderer **rendere
     return 0;
 }
 
-
+/**
+ * @brief Creates and initialises the astres
+ * 
+ * @param renderer
+ * @param Astres array of the astres
+ * @param radiusArray
+ * @param distArray
+ * @param colourArray
+ */
 void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusArray,
-        const int *distArray, Uint8 colourArray[][3])
+        const int *distArray, Uint8 colourArray[][3], double initial_angles[NB_ASTRES])
 {
     srand(11871214);
     for (int i = 0 ; i < NB_ASTRES ; i++) {
@@ -46,14 +75,21 @@ void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusAr
         a->blue = colourArray[i][2];
 
         a->angle = (rand() % 360)*PI/180;
+        initial_angles[i] = a->angle;
         a->x = distArray[i]*cos(a->angle) + WINDOW_WIDTH/2;
         a->y = -distArray[i]*sin(a->angle) + WINDOW_HEIGHT/2;
 
         a->mass = massArray[i];
-        a->astre = create_disk(renderer, a->radius, a->red, a->green, a->blue);
+        a->astre = create_disk(renderer, a->radius, a->red, a->green, a->blue, i, a->x-WINDOW_WIDTH/2, a->y-WINDOW_HEIGHT/2);
     }
 }
 
+/**
+ * @brief Initialises the trajectories
+ *
+ * @param renderer
+ * @param trajTex Texture for trajectories
+ */
 void init_trajectories(SDL_Renderer* renderer,
                        SDL_Texture* trajTex[NB_ASTRES])
 {
@@ -72,7 +108,15 @@ void init_trajectories(SDL_Renderer* renderer,
     SDL_SetRenderTarget(renderer, NULL);
 }
 
-
+/**
+ * @brief Updates tre traj Texture with the new
+ * astre positions
+ *
+ * @param renderer
+ * @param trajTex
+ * @param x coordinate
+ * @param y coordinate
+ */
 void update_trajectory(SDL_Renderer* renderer,
                        SDL_Texture* trajTex,
                        int x, int y)
@@ -87,8 +131,13 @@ void update_trajectory(SDL_Renderer* renderer,
     }
 }
 
-
-void place(SDL_Renderer *renderer, Astre *Astres)
+/**
+ * @brief Place the textures on the screen
+ *
+ * @param renderer 
+ * @param Astres 
+ */
+void place(SDL_Renderer *renderer, Astre *Astres, double initial_angles[NB_ASTRES])
 {
     for (int i = 0; i < NB_ASTRES ; i++) {
         Astre *a = &Astres[i];
@@ -103,13 +152,23 @@ void place(SDL_Renderer *renderer, Astre *Astres)
         position.y = (int)(a->y - a->radius);
         position.w = 2 * a->radius;
         position.h = 2 * a->radius;
+        double rotation_angle = -(a->angle-initial_angles[i])*180/PI;
 
-        SDL_RenderCopy(renderer, a->astre, NULL, &position);
+        SDL_RenderCopyEx(renderer, a->astre, NULL, &position, rotation_angle, NULL, 0);
     }
 }
 
-
-void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres, SDL_Texture *trajTextures[NB_ASTRES]) {
+/**
+ * @brief Destroy and Quit SDL
+ *
+ * @param window
+ * @param renderer
+ * @param Astres
+ * @param trajTextures
+ */
+void quit_universe(SDL_Window *window, SDL_Renderer *renderer,
+                   Astre *Astres, SDL_Texture *trajTextures[NB_ASTRES])
+{
     for (int i = 0 ; i < NB_ASTRES ; i++) {
         SDL_DestroyTexture((Astres+i)->astre);
         SDL_DestroyTexture(trajTextures[i]);
@@ -119,22 +178,35 @@ void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres, SD
     SDL_Quit();
 }
 
-
-bool escape_key(SDL_Event event) {
+/**
+ * @brief Detect when the escape key is pressed down
+ *
+ * @param event
+ * @return true
+ * @return false
+ */
+bool escape_key(SDL_Event event)
+{
     switch (event.key.keysym.sym)
     {
         case SDLK_ESCAPE:
             return false;
             break;
-        
+
         default:
             break;
     }
     return true;
 }
 
-
-bool check_event() {
+/**
+ * @brief Detect quitting from user
+ *
+ * @return true
+ * @return false
+ */
+bool check_event()
+{
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch(event.type) {

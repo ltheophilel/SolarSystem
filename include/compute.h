@@ -9,6 +9,14 @@
 
 void second_law_kepler(Astre *Astres);
 
+void initial_speed(Astre *Astres);
+
+void get_date(int *year, int *month, int* day);
+
+int days_past(int year, int month, int day);
+
+void get_today_angles(double today_angles[NB_ASTRES]);
+
 bool is_in_disk(int x, int y, int radius, int i);
 
 bool is_in_shadow(int x, int y, int planet_x, int planet_y, int radius);
@@ -23,5 +31,7 @@ void update_positions(Astre *Astres, const int *distArray);
 double compute_distance_inv_cubed(Astre A1,Astre A2);
 
 void update_positions_dynamics(Astre *Astres, const int *distArray);
+
+int compute_year(Astre Earth);
 
 #endif

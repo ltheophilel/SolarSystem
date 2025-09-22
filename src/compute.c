@@ -9,8 +9,10 @@
  *
  */
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "constants.h"
@@ -18,12 +20,12 @@
 #include "main.h"
 
 /**
- * @brief Computes the initial velocities of the planets using
- * Kepler's scond law.
+ * @brief UNUSED Computes the initial velocities of the planets using
+ * Kepler's second law.
  *
  * @param Astres array of Astres.
  */
-void second_law_kepler(Astre *Astres) 
+void second_law_kepler(Astre *Astres)
 {
     for (int i = 1; i < NB_ASTRES ; i++) 
     {
@@ -37,6 +39,89 @@ void second_law_kepler(Astre *Astres)
         a->vy = -speed*sin(a->angle);
         // printf("VITESSE %e\n", speed);
     }
+}
+
+/**
+ * @brief Compute the initial speed for each planet
+ *
+ * @param Astres
+ */
+void initial_speed(Astre *Astres)
+{
+    for (int i = 1; i < NB_ASTRES ; i++) 
+    {
+        Astre *a = &Astres[i];
+        double perimeter_amplified = 2*PI*distArray[i]*TIME_SPEEDUP;
+        a->vx = perimeter_amplified/yearDurationArray[i]*cos(a->angle);
+        a->vy = -perimeter_amplified/yearDurationArray[i]*sin(a->angle);
+/*         double speed = norm2(a->vx, a->vy);
+        printf("VITESSE %e\n", speed); */
+    }
+}
+
+/**
+ * @brief Compute how many days separate compile time from the 2025/08/27
+ * 
+ * @return
+ */
+void get_date(int *year, int *month, int* day)
+{
+    char today[] = __DATE__;
+    // printf("%s\n", today);
+
+    char all_months[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+    char today_month[4];
+    strncpy(today_month, today, 3);
+    today_month[3] = '\0';
+
+    for (int k = 0; k < 12; k++) 
+    {
+        char month_test[4];
+        strncpy(month_test, all_months + 3*k, 3);
+        month_test[3] = '\0';
+        if (strcmp(today_month, month_test) == 0) 
+        {
+            *month = k + 1;
+            break;
+        }
+    }
+    if (today[4]==' ') *day = (today[5]-'0');
+    else *day = 10*(today[4]-'0') + (today[5]-'0');
+    *year = 1000*(today[7]-'0')+ 100*(today[8]-'0')+10*(today[9]-'0')+(today[10]-'0');
+}
+
+/**
+ * @brief 
+ * 
+ * @param year 
+ * @param month 
+ * @param day 
+ * @return int 
+ */
+int days_past(int year, int month, int day)
+{
+    int diff_years = (year-YEAR_ANGLE)*365;
+    int diff_months = (month-MONTH_ANGLE)*30;
+    int diff_days = day-DAY_ANGLE;
+    // printf("%d", diff_days+diff_months+diff_years);
+    return diff_days+diff_months+diff_years;
+}
+
+/**
+ * @brief Get the today angles from the measurement on the 2025/08/27
+ *
+ * @param today_angles 
+ */
+void get_today_angles(double today_angles[NB_ASTRES])
+{
+    int year, month, day;
+    get_date(&year, &month, &day);
+    int nb_days = days_past(year, month, day);
+    for (int i = 0 ; i < NB_ASTRES ; i++)
+    {
+        today_angles[i] = angleArray[i] + (nb_days/yearDurationArray[i])*2*PI;
+    }
+    // printf("%lf\n", fmod(today_angles[3], 2*PI));
 }
 
 /**
@@ -204,4 +289,17 @@ void update_positions_dynamics(Astre *Astres, const int *distArray)
         a->y += a->vy*dt*10;
         // printf("delta_pos = %e\n", norm2(a->vx*dt, a->vy*dt));
     }
+}
+
+/**
+ * @brief 
+ * 
+ * @param Earth 
+ * @param current_year 
+ * @return int 
+ */
+int compute_year(Astre Earth)
+{
+    int revolutions_earth = (int)((Earth.angle-ANGLE_NEW_YEAR) / (2*PI));
+    return revolutions_earth;
 }

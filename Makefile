@@ -1,7 +1,7 @@
 # Compiler and flags
 CC = gcc
 CFLAGS = -Wall -Wextra -g -Iinclude $(shell sdl2-config --cflags)
-LDFLAGS = $(shell sdl2-config --libs) -lm
+LDFLAGS = $(shell sdl2-config --libs) -lm -lSDL2_ttf
 
 ifeq ($(ONSCALE),1)
     CFLAGS += -DONSCALE

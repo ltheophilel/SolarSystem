@@ -14,14 +14,14 @@ void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusAr
     const int *distArray, Uint8 colourArray[][3], double initial_angles[NB_ASTRES]);
 
 void init_trajectories(SDL_Renderer* renderer,
-                       SDL_Texture* trajTex[NB_ASTRES]);
+                       SDL_Texture** trajTex);
 
 void update_trajectory(SDL_Renderer* renderer,
                        SDL_Texture* trajTex,
-                       int x, int y);
+                       Astre Astres[NB_ASTRES]);
 
 void place(SDL_Renderer *renderer, Astre *Astres, double initial_angles[NB_ASTRES]);
 
-void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres, SDL_Texture *trajTextures[NB_ASTRES]);
+void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres, SDL_Texture *trajTexture);
 
 #endif

@@ -5,8 +5,6 @@
  * @version 0.3
  * @date 2025-08-26
  *
- * @copyright Copyright (c) 2025
- *
  */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -19,9 +17,12 @@
 #include "compute.h"
 #include "display.h"
 #include "main.h"
+#include "date.h"
+#include "shape.h"
 
 
 static int dynamics = 0;
+static int on_scale = 0;
 
 int main(int argc, char* argv[])
 {
@@ -41,23 +42,38 @@ int main(int argc, char* argv[])
     SDL_Texture* trajTexture;
     SDL_Surface *textSurface;
     SDL_Texture *textTexture;
+    const int *distArray, *radiusArray;
+    double reduction_factor;
+    if (on_scale == 0)
+    {
+        reduction_factor = reduction_arbitrary;
+        distArray = distArray_arbitrary;
+        radiusArray = radiusArray_arbitrary;
+    }
+    else
+    {
+        reduction_factor = reduction_onscale;
+        distArray = distArray_onscale;
+        radiusArray = radiusArray_onscale;
+    }
 
     double initial_angles[NB_ASTRES];
 
     /* Creation */
     init_trajectories(renderer, &trajTexture);
     construct_astres(renderer, Astres, radiusArray, distArray, colourArray, initial_angles);
-    initial_speed(Astres);
 
     /* Version Detection */
-    void (*update_pos)(Astre *Astres, const int *distArray);
+    void (*update_pos)(Astre *Astres, const int *distArray, double reduction_factor);
     switch (dynamics)
     {
         case 0:
-            update_pos = update_positions;
-            break;
+        update_pos = update_positions_kinematics;
+        initial_speed_kinematics(Astres, distArray);
+        break;
 
         case 1:
+        initial_speed_dynamics(Astres, distArray, reduction_factor, on_scale);
             update_pos = update_positions_dynamics;
             break;
 
@@ -82,8 +98,9 @@ int main(int argc, char* argv[])
 
     int year, month, day;
     get_date(&year, &month, &day);
-    int init_year = year;
     int current_year = year;
+    int new_year = 0;
+
     while (hold)
     {
         hold = check_event();
@@ -94,32 +111,29 @@ int main(int argc, char* argv[])
             goto END_LOOP;
         }
         t = clock();
+        // Black Screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        update_pos(Astres, distArray);
-        current_year = init_year + compute_year(Astres[3]);
+        // Positions
+        update_pos(Astres, distArray, reduction_factor);
+
+        // Year
+        current_year += compute_year(Astres[3], &new_year);
         char year_print[10];
         sprintf(year_print, "%d", current_year);
 
-        // Créer une surface de texte
-        SDL_Color textColor = {255, 255, 255, 255};
-        textSurface = TTF_RenderText_Solid(font, year_print, textColor);
-        if (!textSurface) {
-            printf("Error while rendering text : %s\n", TTF_GetError());
-            return 1;
-        }
-        textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-        if (!textTexture) {
-            printf("Erreur de création de la texture : %s\n", SDL_GetError());
-            return 1;
-        }
-        SDL_Rect textRect = {10, 10, textSurface->w, textSurface->h}; // Position et taille
+        // Year Text
+        int test_text = place_text(renderer, &textSurface, &textTexture, font, year_print);
+        if (test_text !=0) return test_text;
+        SDL_Rect textRect = {10, 10, textSurface->w, textSurface->h}; // Position and size
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
+        // Trajectories
         update_trajectory(renderer, trajTexture, Astres);
         SDL_RenderCopy(renderer, trajTexture, NULL, NULL);
 
+        // Rendering
         place(renderer, Astres, initial_angles);
         SDL_RenderPresent(renderer);
 
@@ -127,7 +141,7 @@ int main(int argc, char* argv[])
         nb_frames++;
         time_taken += ((double)-t)/CLOCKS_PER_SEC*1000;
 
-        END_LOOP: // use goto for pause
+        END_LOOP: // using goto for pause
         SDL_Delay(delay_milliseconds);
     }
     SDL_FreeSurface(textSurface);
@@ -135,7 +149,7 @@ int main(int argc, char* argv[])
     TTF_CloseFont(font);
     quit_universe(window,renderer, Astres, trajTexture);
     time_taken = time_taken/nb_frames;
-    // printf("compute average time = %lf ms\n", time_taken);
+    printf("compute average time = %lf ms\n", time_taken);
     return 0;
 }
 
@@ -151,6 +165,9 @@ void version_decision(int argc, char* argv[])
     {
         if (strcmp(argv[i], "dynamics")==0) {
             dynamics = 1;
+        }
+        else if (strcmp(argv[i], "on_scale")==0) {
+            on_scale = 1;
         }
     }
 }

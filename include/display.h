@@ -22,6 +22,10 @@ void update_trajectory(SDL_Renderer* renderer,
 
 void place(SDL_Renderer *renderer, Astre *Astres, double initial_angles[NB_ASTRES]);
 
+int place_text(SDL_Renderer *renderer, SDL_Surface **textSurface, 
+                SDL_Texture **textTexture, TTF_Font* font,
+                char year_print[10]);
+
 void quit_universe(SDL_Window *window, SDL_Renderer *renderer, Astre *Astres, SDL_Texture *trajTexture);
 
 #endif

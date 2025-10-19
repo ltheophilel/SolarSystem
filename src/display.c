@@ -5,8 +5,6 @@
  * @version 0.3
  * @date 2025-08-27
  *
- * @copyright Copyright (c) 2025
- *
  */
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -16,7 +14,8 @@
 #include "compute.h"
 #include "display.h"
 #include "main.h"
-
+#include "date.h"
+#include "shape.h"
 
 /**
  * @brief SDL init and error catching
@@ -164,6 +163,27 @@ void place(SDL_Renderer *renderer, Astre *Astres, double initial_angles[NB_ASTRE
         SDL_RenderCopyEx(renderer, a->astre, NULL, &position, rotation_angle, NULL, 0);
     }
 }
+
+int place_text(SDL_Renderer *renderer, SDL_Surface **textSurface, 
+                SDL_Texture **textTexture, TTF_Font* font,
+                char year_print[10])
+{
+    SDL_Color textColor = {255, 255, 255, 255};
+    *textSurface = TTF_RenderText_Solid(font, year_print, textColor);
+    if (!*textSurface)
+    {
+        printf("Error while rendering text : %s\n", TTF_GetError());
+        return 1;
+    }
+    *textTexture = SDL_CreateTextureFromSurface(renderer, *textSurface);
+    if (!*textTexture)
+    {
+        printf("Error while creating texture : %s\n", SDL_GetError());
+        return 1;
+    }
+    return 0;
+}
+
 
 /**
  * @brief Destroy and Quit SDL

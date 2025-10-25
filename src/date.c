@@ -2,8 +2,8 @@
  * @file date.c
  * @author Theophile (ltheophilel on GitHub)
  * @brief date related computing functions
- * @version 0.3
- * @date 2025-08-27
+ * @version 0.4
+ * @date 2025-10-25
  *
  */
 

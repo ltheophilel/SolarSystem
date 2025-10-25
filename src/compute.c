@@ -2,8 +2,8 @@
  * @file compute.c
  * @author Theophile (ltheophilel on GitHub)
  * @brief computing functions : simulation related computing
- * @version 0.3
- * @date 2025-08-27
+ * @version 0.4
+ * @date 2025-10-25
  *
  */
 #include <SDL2/SDL.h>

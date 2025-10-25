@@ -10,6 +10,8 @@
 #define TIME_SPEEDUP 1.0e-3
 #define ANGLE_NEW_YEAR 1.704273
 
+#define FPS_PRECISION 10
+
 extern const int radiusArray_arbitrary[NB_ASTRES];
 extern const int distArray_arbitrary[NB_ASTRES];
 extern const double reduction_arbitrary;

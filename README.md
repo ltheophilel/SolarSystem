@@ -47,23 +47,26 @@ You can choose :
 ```
 
 ### Controls
-+ Pause : holding the **Space bar**
 + Exit : hitting **Escape**
++ Pause : holding the **Space bar**
++ Right Arrow : speed up
++ Left Arrow : slow down
 
 ## Features
 
-### Two simulation modes:
+### Two simulation modes :
 
 > Kinematic : Precomputed orbits (faster, less CPU-intensive).  
 Dynamic : Real-time physics (more accurate).
 
-### Two scale modes:
+### Two scale modes :
 
 > Screen-adapted (default).  
-Real scale (use -DONSCALE=ON at compile time).
+Real scale : Distances are on scale, planet sizes too but not with repect to the other (if so, all planets would be a few pixels wide).
 
 Real-time date display (top-left corner).  
-Acceleration factor : ~8,000,000 (1 year in 5 seconds).
+FPS printing (averaged on the whole simulation)  
+Max acceleration : ~8,000,000 (1 year in 5 seconds).
 
 
 ## Project Structure
@@ -89,8 +92,5 @@ Acceleration factor : ~8,000,000 (1 year in 5 seconds).
 └── view.png  (TB replaced with a gif)
 ```
 ## Next steps
-+ Better Menus / Interface : date (add 'today' as (default) parameter --> avoid having to adapt the date reading), speed / option for full screen
-+ In dynamics mode --> integrate with Runge-Kutta 4 to access higher simulation speed factor (too much numerical errors else)
-+ Textures
++ Better Interface : date (add 'today' as (default) parameter --> avoid having to adapt the date reading), option for full screen
 + Infos on planets
-+ Camera movements

@@ -2,8 +2,8 @@
  * @file display.c
  * @author Theophile (ltheophilel on GitHub)
  * @brief functions related to SDL
- * @version 0.3
- * @date 2025-08-27
+ * @version 0.4
+ * @date 2025-10-25
  *
  */
 #include <SDL2/SDL.h>
@@ -166,10 +166,10 @@ void place(SDL_Renderer *renderer, Astre *Astres, double initial_angles[NB_ASTRE
 
 int place_text(SDL_Renderer *renderer, SDL_Surface **textSurface, 
                 SDL_Texture **textTexture, TTF_Font* font,
-                char year_print[10])
+                char text[10])
 {
     SDL_Color textColor = {255, 255, 255, 255};
-    *textSurface = TTF_RenderText_Solid(font, year_print, textColor);
+    *textSurface = TTF_RenderText_Solid(font, text, textColor);
     if (!*textSurface)
     {
         printf("Error while rendering text : %s\n", TTF_GetError());
@@ -182,6 +182,13 @@ int place_text(SDL_Renderer *renderer, SDL_Surface **textSurface,
         return 1;
     }
     return 0;
+}
+
+void translate_fps_to_text(double fps, char fps_array[FPS_PRECISION])
+{
+    int fps_int = (int)fps;
+    int fps_dec = (int)((fps - fps_int) * 100);
+    sprintf(fps_array, "%d,%02d FPS", fps_int, fps_dec);
 }
 
 
@@ -207,24 +214,29 @@ void quit_universe(SDL_Window *window, SDL_Renderer *renderer,
 }
 
 /**
- * @brief Detect when the escape key is pressed down
+ * @brief Detect when the side keys are pressed down
  *
  * @param event
  * @return true
  * @return false
  */
-bool escape_key(SDL_Event event)
+int which_key(SDL_Event event)
 {
     switch (event.key.keysym.sym)
     {
+        case SDLK_RIGHT:
+        return -1;
+
+        case SDLK_LEFT:
+            return 1;
+
         case SDLK_ESCAPE:
-            return false;
-            break;
+            return 2;
 
         default:
             break;
     }
-    return true;
+    return 0;
 }
 
 /**
@@ -233,19 +245,40 @@ bool escape_key(SDL_Event event)
  * @return true
  * @return false
  */
-bool check_event()
+int check_event()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch(event.type)
         {
         case SDL_QUIT:
-            return false;
-            break;
+            return 2;
         case SDL_KEYDOWN:
-            return escape_key(event);
-            break;
+            return which_key(event);
         }
     }
-    return true;
+    return 0;
+}
+
+void user_input_processing(int test, bool *hold, int *delay_milliseconds)
+{
+    int added_delay = 25;
+    switch (test)
+    {
+    case 0:
+        break;
+    case 2:
+        *hold = false;
+        break;
+    case 1:
+        if (*delay_milliseconds < added_delay*10) 
+            (*delay_milliseconds)+= added_delay;
+        break;
+    case -1:
+        if (*delay_milliseconds > added_delay) 
+            (*delay_milliseconds)-=added_delay;
+        break;
+    default:
+        break;
+    }
 }

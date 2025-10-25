@@ -2,8 +2,8 @@
  * @file main.c
  * @author Theophile (ltheophilel on GitHub)
  * @brief main simulation file
- * @version 0.3
- * @date 2025-08-26
+ * @version 0.4
+ * @date 2025-10-25
  *
  */
 #include <SDL2/SDL.h>
@@ -42,8 +42,11 @@ int main(int argc, char* argv[])
     SDL_Texture* trajTexture;
     SDL_Surface *textSurface;
     SDL_Texture *textTexture;
+    SDL_Surface *fpsSurface;
+    SDL_Texture *fpsTexture;
     const int *distArray, *radiusArray;
     double reduction_factor;
+
     if (on_scale == 0)
     {
         reduction_factor = reduction_arbitrary;
@@ -73,9 +76,10 @@ int main(int argc, char* argv[])
         break;
 
         case 1:
-        initial_speed_dynamics(Astres, distArray, reduction_factor, on_scale);
-            update_pos = update_positions_dynamics;
-            break;
+        initial_speed_dynamics(Astres, distArray,
+             reduction_factor, on_scale);
+        update_pos = update_positions_dynamics;
+        break;
 
         default:
             break;
@@ -89,28 +93,33 @@ int main(int argc, char* argv[])
 
     /* Main Loop */
     bool hold = true;
+    int test = 1;
     bool pause = false;
 
     int delay_milliseconds = 0;
-    clock_t t;
-    double time_taken;
+    clock_t start;
+    clock_t end;
+    double time_taken = 0;
     long int nb_frames = 0;
+    double fps = 0;
 
     int year, month, day;
     get_date(&year, &month, &day);
     int current_year = year;
+    int diff_year = 0;
     int new_year = 0;
 
-    while (hold)
+    while (hold==1)
     {
-        hold = check_event();
+        test = check_event();
+        user_input_processing(test, &hold, &delay_milliseconds);
         const Uint8 *state = SDL_GetKeyboardState(NULL);
         pause = state[SDL_SCANCODE_SPACE];
 
-        if (pause) {
+        if (pause || delay_milliseconds < 0)
             goto END_LOOP;
-        }
-        t = clock();
+
+        start = clock();
         // Black Screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -119,15 +128,26 @@ int main(int argc, char* argv[])
         update_pos(Astres, distArray, reduction_factor);
 
         // Year
-        current_year += compute_year(Astres[3], &new_year);
+        diff_year = compute_year(Astres[3], &new_year);
+        current_year += diff_year;
         char year_print[10];
         sprintf(year_print, "%d", current_year);
+
+        // FPS
+        char fps_array[FPS_PRECISION];
+        translate_fps_to_text(fps, fps_array);
 
         // Year Text
         int test_text = place_text(renderer, &textSurface, &textTexture, font, year_print);
         if (test_text !=0) return test_text;
         SDL_Rect textRect = {10, 10, textSurface->w, textSurface->h}; // Position and size
         SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+
+        // FPS Text
+        test_text = place_text(renderer, &fpsSurface, &fpsTexture, font, fps_array);
+        if (test_text !=0) return test_text;
+        SDL_Rect fpsRect = {WINDOW_WIDTH-fpsSurface->w-10, 10, fpsSurface->w, fpsSurface->h}; // Position and size
+        SDL_RenderCopy(renderer, fpsTexture, NULL, &fpsRect);
 
         // Trajectories
         update_trajectory(renderer, trajTexture, Astres);
@@ -136,20 +156,23 @@ int main(int argc, char* argv[])
         // Rendering
         place(renderer, Astres, initial_angles);
         SDL_RenderPresent(renderer);
+        end = clock();
 
-        t -= clock();
         nb_frames++;
-        time_taken += ((double)-t)/CLOCKS_PER_SEC*1000;
+        time_taken += ((double)(end-start))*1000/(CLOCKS_PER_SEC);
+        fps = 1000*nb_frames/time_taken;
 
         END_LOOP: // using goto for pause
         SDL_Delay(delay_milliseconds);
     }
-    SDL_FreeSurface(textSurface);
+    SDL_FreeSurface(textSurface); // TODO put in quit_universe
     SDL_DestroyTexture(textTexture);
+    SDL_FreeSurface(fpsSurface);
+    SDL_DestroyTexture(fpsTexture);
     TTF_CloseFont(font);
     quit_universe(window,renderer, Astres, trajTexture);
-    time_taken = time_taken/nb_frames;
-    printf("compute average time = %lf ms\n", time_taken);
+    double average_time_taken = time_taken/nb_frames;
+    printf("compute average time = %lf ms\n", average_time_taken);
     return 0;
 }
 

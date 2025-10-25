@@ -6,7 +6,7 @@ const int distArray_onscale[NB_ASTRES] = {0, 0.4*28.3, 0.7*28.3, 1*28.3,
     1.5*28.3, 5.2*28.3, 9.5*28.3, 19.2*28.3, 30*28.3};
 
 const double reduction_arbitrary = 150e6/100;
-const int radiusArray_arbitrary[NB_ASTRES] = {30, 5, 8, 8, 7, 20, 21, 13, 13};
+const int radiusArray_arbitrary[NB_ASTRES] = {30, 8, 13, 13, 11, 29, 31, 20, 20};
 const int distArray_arbitrary[NB_ASTRES] = {0, 0.4*100, 0.7*100, 1*100, 
     1.5*100, 2.5*100, 4*100, 5.2*100, 6*100};
 

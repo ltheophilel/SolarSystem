@@ -100,7 +100,9 @@ int main(int argc, char* argv[])
     clock_t start;
     clock_t end;
     double time_taken = 0;
+    double time_checkpoint = 0;
     long int nb_frames = 0;
+    long int nb_frames_checkpoint = 0;
     double fps = 0;
 
     int year, month, day;
@@ -132,17 +134,19 @@ int main(int argc, char* argv[])
         current_year += diff_year;
         char year_print[10];
         sprintf(year_print, "%d", current_year);
+        // Year Text
+        int test_text;
+        if (1==diff_year || 0==nb_frames)
+        {
+            test_text = place_text(renderer, &textSurface, &textTexture, font, year_print);
+            if (test_text !=0) return test_text;
+        }
+        SDL_Rect textRect = {10, 10, textSurface->w, textSurface->h}; // Position and size
+        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
         // FPS
         char fps_array[FPS_PRECISION];
         translate_fps_to_text(fps, fps_array);
-
-        // Year Text
-        int test_text = place_text(renderer, &textSurface, &textTexture, font, year_print);
-        if (test_text !=0) return test_text;
-        SDL_Rect textRect = {10, 10, textSurface->w, textSurface->h}; // Position and size
-        SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
-
         // FPS Text
         test_text = place_text(renderer, &fpsSurface, &fpsTexture, font, fps_array);
         if (test_text !=0) return test_text;
@@ -160,7 +164,12 @@ int main(int argc, char* argv[])
 
         nb_frames++;
         time_taken += ((double)(end-start))*1000/(CLOCKS_PER_SEC);
-        fps = 1000*nb_frames/time_taken;
+        if (0==nb_frames%40|| 1==nb_frames)
+        {
+            fps = 1000*(nb_frames-nb_frames_checkpoint)/(time_taken-time_checkpoint);
+            time_checkpoint = time_taken;
+            nb_frames_checkpoint = nb_frames;
+        }
 
         END_LOOP: // using goto for pause
         SDL_Delay(delay_milliseconds);
@@ -171,8 +180,8 @@ int main(int argc, char* argv[])
     SDL_DestroyTexture(fpsTexture);
     TTF_CloseFont(font);
     quit_universe(window,renderer, Astres, trajTexture);
-    double average_time_taken = time_taken/nb_frames;
-    printf("compute average time = %lf ms\n", average_time_taken);
+    // double average_time_taken = time_taken/nb_frames;
+    // printf("compute average time = %lf ms\n", average_time_taken);
     return 0;
 }
 

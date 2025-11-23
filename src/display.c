@@ -48,7 +48,7 @@ int sdl_init()
 int create_window(SDL_Window **window, const char *title, SDL_Renderer **renderer)
 {
     *window = SDL_CreateWindow(title,
-    SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN, SDL_WINDOW_FULLSCREEN);
+    SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN, SDL_WINDOW_FULLSCREEN_DESKTOP); //SDL_WINDOW_FULLSCREEN
 
     if (*window == NULL) {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());

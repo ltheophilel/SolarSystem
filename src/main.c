@@ -114,6 +114,7 @@ int main(int argc, char* argv[])
     while (hold==1)
     {
         test = check_event();
+        start = clock();
         user_input_processing(test, &hold, &delay_milliseconds);
         const Uint8 *state = SDL_GetKeyboardState(NULL);
         pause = state[SDL_SCANCODE_SPACE];
@@ -121,7 +122,6 @@ int main(int argc, char* argv[])
         if (pause || delay_milliseconds < 0)
             goto END_LOOP;
 
-        start = clock();
         // Black Screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
@@ -180,8 +180,8 @@ int main(int argc, char* argv[])
     SDL_DestroyTexture(fpsTexture);
     TTF_CloseFont(font);
     quit_universe(window,renderer, Astres, trajTexture);
-    // double average_time_taken = time_taken/nb_frames;
-    // printf("compute average time = %lf ms\n", average_time_taken);
+    double average_time_taken = time_taken/nb_frames;
+    printf("compute average time = %lf ms\n", average_time_taken);
     return 0;
 }
 

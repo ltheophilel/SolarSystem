@@ -1,5 +1,5 @@
 # Solar System Simulation in C with SDL2
-![Interface](/view.png)
+![Interface](/demo.gif)
 
 This is a **2D simulation** of the Solar System, including the Sun and the 8 planets. 
 ## Prerequisites
@@ -45,6 +45,7 @@ You can choose :
 ./solarsystem # Kinematics
 ./solarsystem dynamics # Dynamics 
 ```
+You can of course choose both.
 
 ### Controls
 + Exit : hitting **Escape**
@@ -64,8 +65,8 @@ Dynamic : Real-time physics (more accurate).
 > Screen-adapted (default).  
 Real scale : Distances are on scale, planet sizes too but not with repect to the other (if so, all planets would be a few pixels wide).
 
-Real-time date display (top-left corner).  
-FPS printing (averaged on the whole simulation)  
+Corresponding date display (top-left corner).  
+FPS (CPU time) printing  
 Max acceleration : ~8,000,000 (1 year in 5 seconds).
 
 
@@ -89,7 +90,7 @@ Max acceleration : ~8,000,000 (1 year in 5 seconds).
 │   ├── display.c
 │   ├── main.c
 │   └── shape.c
-└── view.png  (TB replaced with a gif)
+└── demo.gif
 ```
 ## Next steps
 + Better Interface : date (add 'today' as (default) parameter --> avoid having to adapt the date reading), option for full screen

@@ -1,13 +1,12 @@
 #ifndef MAIN_H
 #define MAIN_H
-#include <SDL2/SDL.h>
 
-/**
- * @brief 
- * 
- */
-typedef struct Astre Astre;
-struct Astre {
+#include <SDL2/SDL.h>
+#include <stdio.h>
+#include <string.h>
+#include <time.h>
+
+typedef struct Astre {
     SDL_Texture *astre;
     int radius;
     Uint8 red;
@@ -19,17 +18,12 @@ struct Astre {
     double vy;
     double angle;
     double mass;
-};
+} Astre;
 
-/**
- * @brief 
- * 
- */
-typedef struct Point Point;
-struct Point {
+typedef struct Point {
     int x;
     int y;
-};
+} Point;
 
 void version_decision(int argc, char* argv[]);
 

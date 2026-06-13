@@ -2,25 +2,14 @@
  * @file shape.c
  * @author Theophile (ltheophilel on GitHub)
  * @brief computing functions : astre shapes
- * @version 0.4
+ * @version 0.5
  * @date 2025-10-25
  *
  */
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
-#include "constants.h"
-#include "compute.h"
-#include "main.h"
-#include "shape.h"
-
+#include "../include/shape.h"
 
 /**
- * @brief returns if a pixel should be on 
+ * @brief returns if a pixel should be on
  * if it is in the planet
  *
  * @param x coordinate
@@ -30,14 +19,17 @@
  * @return true if the pixel is on
  * @return false else
  */
-bool is_in_disk(int x, int y, int radius, int i)
+static bool is_in_disk(int x, int y, int radius, int i)
 {
-    int dist_x = x-radius;
-    int dist_y = y-radius;
-    int dist_compute = dist_x*dist_x + dist_y*dist_y;
-    bool disk = (dist_compute <= radius*radius);
-    bool empty; // Saturn rings
-    if (i==6) empty = ((dist_compute >= 0.8*radius*0.8*radius) && (dist_compute <= 0.93*radius*0.93*radius));
+    int dist_x = x - radius;
+    int dist_y = y - radius;
+    int dist_compute = dist_x * dist_x + dist_y * dist_y;
+    bool disk = (dist_compute <= radius * radius);
+    bool empty = 0; // Saturn rings
+    if (i == 6)
+        empty =
+            ((dist_compute >= 0.8 * radius * 0.8 * radius) &&
+             (dist_compute <= 0.93 * radius * 0.93 * radius));
     return (disk && !empty);
 }
 
@@ -53,17 +45,17 @@ bool is_in_disk(int x, int y, int radius, int i)
  * @return true if the pixel should be dark
  * @return false else
  */
-bool is_in_shadow(int x, int y, int planet_x, int planet_y, int radius)
+static bool is_in_shadow(int x, int y, int planet_x, int planet_y, int radius)
 {
-    int dist_x = x-radius;
-    int dist_y = y-radius;
-    int dot_prod = planet_x*dist_x + planet_y*dist_y;
+    int dist_x = x - radius;
+    int dist_y = y - radius;
+    int dot_prod = planet_x * dist_x + planet_y * dist_y;
     return dot_prod > 0;
 }
 
 /**
  * @brief Create a disk object
- * 
+ *
  * @param renderer
  * @param radius
  * @param red
@@ -74,33 +66,51 @@ bool is_in_shadow(int x, int y, int planet_x, int planet_y, int radius)
  * @param planet_y planet center coordinate
  * @return SDL_Texture*
  */
-SDL_Texture* create_disk(SDL_Renderer *renderer,
-                         int radius, Uint8 red, Uint8 green, Uint8 blue,
-                         int i, int planet_x, int planet_y)
+SDL_Texture *create_disk(
+    SDL_Renderer *renderer,
+    int radius,
+    Uint8 red,
+    Uint8 green,
+    Uint8 blue,
+    int i,
+    int planet_x,
+    int planet_y)
 {
     int diameter = 2 * radius;
-    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(0,
-        diameter, diameter, 32, SDL_PIXELFORMAT_RGBA8888);
+    SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormat(
+        0, diameter, diameter, 32, SDL_PIXELFORMAT_RGBA8888);
 
     SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
-    if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+    if (SDL_MUSTLOCK(surface))
+        SDL_LockSurface(surface);
+
     Uint8 *pixels = (Uint8 *)surface->pixels;
     int pitch = surface->pitch;
-    Uint32 color = SDL_MapRGBA(surface->format, red, green, blue, 255);  // opaque
-    Uint32 colordark = SDL_MapRGBA(surface->format, red, green, blue, 80);  // transparent
-    for (int x = 0; x < diameter; ++x) 
+    Uint32 color =
+        SDL_MapRGBA(surface->format, red, green, blue, 255); // opaque
+    Uint32 colordark =
+        SDL_MapRGBA(surface->format, red, green, blue, 80); // transparent
+
+    for (int x = 0; x < diameter; ++x)
     {
-        for (int y = 0; y < diameter; ++y) 
+        for (int y = 0; y < diameter; ++y)
         {
-            if (is_in_disk(x, y, radius, i)) 
+            if (is_in_disk(x, y, radius, i))
             {
-                Uint32 *pixelPtr = (Uint32 *)(pixels + y * pitch + x * 4); // 4 bytes per pixel (RGBA8888)
-                if (i == 0 || !is_in_shadow(x,y, planet_x, planet_y,radius)) *pixelPtr = color;
-                else *pixelPtr = colordark;
+                // 4 bytes per pixel (RGBA8888)
+                Uint32 *pixelPtr = (Uint32 *)(pixels + y * pitch + x * 4);
+
+                if (i == 0 || !is_in_shadow(x, y, planet_x, planet_y, radius))
+                    *pixelPtr = color;
+                else
+                    *pixelPtr = colordark;
             }
         }
     }
-    if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+    if (SDL_MUSTLOCK(surface))
+        SDL_UnlockSurface(surface);
+
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 

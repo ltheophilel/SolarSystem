@@ -6,16 +6,8 @@
  * @date 2025-10-25
  *
  */
-#include <SDL2/SDL.h>
+#include "../include/display.h"
 #include <SDL2/SDL_ttf.h>
-#include <math.h>
-
-#include "constants.h"
-#include "compute.h"
-#include "display.h"
-#include "main.h"
-#include "date.h"
-#include "shape.h"
 
 /**
  * @brief SDL init and error catching
@@ -45,35 +37,48 @@ int sdl_init()
  * @param renderer
  * @return int
  */
-int create_window(SDL_Window **window, const char *title, SDL_Renderer **renderer)
+int create_window(
+    SDL_Window **window,
+    const char *title,
+    SDL_Renderer **renderer)
 {
-    *window = SDL_CreateWindow(title,
-    SDL_WINDOWPOS_CENTERED,WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN, SDL_WINDOW_FULLSCREEN_DESKTOP); //SDL_WINDOW_FULLSCREEN
+    *window = SDL_CreateWindow(
+        title, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT,
+        SDL_WINDOW_SHOWN,
+        SDL_WINDOW_FULLSCREEN_DESKTOP); // SDL_WINDOW_FULLSCREEN
 
-    if (*window == NULL) {
+    if (*window == NULL)
+    {
         printf("SDL_CreateWindow Error: %s\n", SDL_GetError());
         return 1;
     }
-    *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    *renderer = SDL_CreateRenderer(
+        *window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     return 0;
 }
 
 /**
  * @brief Creates and initialises the astres
- * 
+ *
  * @param renderer
  * @param Astres array of the astres
  * @param radiusArray
  * @param distArray
  * @param colourArray
  */
-void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusArray,
-        const int *distArray, Uint8 colourArray[][3], double initial_angles[NB_ASTRES])
+void construct_astres(
+    SDL_Renderer *renderer,
+    Astre *Astres,
+    const int *radiusArray,
+    const int *distArray,
+    Uint8 colourArray[][3],
+    double initial_angles[NB_ASTRES])
 {
-    double today_angles[NB_ASTRES];
+    double today_angles[NB_ASTRES] = {0};
     get_today_angles(today_angles);
 
-    for (int i = 0 ; i < NB_ASTRES ; i++) {
+    for (int i = 0; i < NB_ASTRES; i++)
+    {
         Astre *a = &Astres[i];
         a->radius = radiusArray[i];
 
@@ -83,11 +88,13 @@ void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusAr
         a->angle = today_angles[i];
 
         initial_angles[i] = a->angle;
-        a->x = distArray[i]*cos(a->angle) + WINDOW_WIDTH/2;
-        a->y = -distArray[i]*sin(a->angle) + WINDOW_HEIGHT/2;
+        a->x = distArray[i] * cos(a->angle) + (double)WINDOW_WIDTH / 2;
+        a->y = -distArray[i] * sin(a->angle) + (double)WINDOW_HEIGHT / 2;
 
         a->mass = massArray[i];
-        a->astre = create_disk(renderer, a->radius, a->red, a->green, a->blue, i, a->x-WINDOW_WIDTH/2, a->y-WINDOW_HEIGHT/2);
+        a->astre = create_disk(
+            renderer, a->radius, a->red, a->green, a->blue, i,
+            a->x - (double)WINDOW_WIDTH / 2, a->y - (double)WINDOW_HEIGHT / 2);
     }
 }
 
@@ -97,11 +104,10 @@ void construct_astres(SDL_Renderer *renderer, Astre *Astres, const int *radiusAr
  * @param renderer
  * @param trajTex Texture for trajectories
  */
-void init_trajectories(SDL_Renderer* renderer,
-                       SDL_Texture** trajTex)
+void init_trajectories(SDL_Renderer *renderer, SDL_Texture **trajTex)
 {
-    *trajTex = SDL_CreateTexture(renderer,
-        SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+    *trajTex = SDL_CreateTexture(
+        renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
         WINDOW_WIDTH, WINDOW_HEIGHT);
     SDL_SetTextureBlendMode(*trajTex, SDL_BLENDMODE_BLEND);
 
@@ -120,17 +126,19 @@ void init_trajectories(SDL_Renderer* renderer,
  * @param x coordinate
  * @param y coordinate
  */
-void update_trajectory(SDL_Renderer* renderer,
-                       SDL_Texture* trajTex,
-                       Astre Astres[NB_ASTRES])
+void update_trajectory(
+    SDL_Renderer *renderer,
+    SDL_Texture *trajTex,
+    Astre Astres[NB_ASTRES])
 {
     SDL_SetRenderTarget(renderer, trajTex);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    for (int i = 1; i < NB_ASTRES; i++) 
+    for (int i = 1; i < NB_ASTRES; i++)
     {
         int x = (int)Astres[i].x;
         int y = (int)Astres[i].y;
-        if (x >= 0 && x < WINDOW_WIDTH && y >= 0 && y < WINDOW_HEIGHT) {
+        if (x >= 0 && x < WINDOW_WIDTH && y >= 0 && y < WINDOW_HEIGHT)
+        {
             SDL_RenderDrawPoint(renderer, x, y);
         }
     }
@@ -140,15 +148,20 @@ void update_trajectory(SDL_Renderer* renderer,
 /**
  * @brief Place the textures on the screen
  *
- * @param renderer 
- * @param Astres 
+ * @param renderer
+ * @param Astres
  */
-void place(SDL_Renderer *renderer, Astre *Astres, double initial_angles[NB_ASTRES])
+void place(
+    SDL_Renderer *renderer,
+    Astre *Astres,
+    double initial_angles[NB_ASTRES])
 {
-    for (int i = 0; i < NB_ASTRES ; i++) {
+    for (int i = 0; i < NB_ASTRES; i++)
+    {
         Astre *a = &Astres[i];
 
-        if (!a->astre) {
+        if (!a->astre)
+        {
             SDL_Log("Astre %d : texture NULL during placement !", i);
             continue;
         }
@@ -158,17 +171,31 @@ void place(SDL_Renderer *renderer, Astre *Astres, double initial_angles[NB_ASTRE
         position.y = (int)(a->y - a->radius);
         position.w = 2 * a->radius;
         position.h = 2 * a->radius;
-        double rotation_angle = -(a->angle-initial_angles[i])*180/PI;
+        double rotation_angle = -(a->angle - initial_angles[i]) * 180 / PI;
 
-        SDL_RenderCopyEx(renderer, a->astre, NULL, &position, rotation_angle, NULL, 0);
+        SDL_RenderCopyEx(
+            renderer, a->astre, NULL, &position, rotation_angle, NULL, 0);
     }
 }
 
-int place_text(SDL_Renderer *renderer, SDL_Surface **textSurface, 
-                SDL_Texture **textTexture, TTF_Font* font,
-                char text[10])
+int place_text(
+    SDL_Renderer *renderer,
+    SDL_Surface **textSurface,
+    SDL_Texture **textTexture,
+    TTF_Font *font,
+    char text[FPS_PRECISION])
 {
     SDL_Color textColor = {255, 255, 255, 255};
+
+    if (*textSurface != NULL)
+    {
+        SDL_FreeSurface(*textSurface);
+    }
+    if (*textTexture != NULL)
+    {
+        SDL_DestroyTexture(*textTexture);
+    }
+
     *textSurface = TTF_RenderText_Solid(font, text, textColor);
     if (!*textSurface)
     {
@@ -189,8 +216,8 @@ void translate_fps_to_text(double fps, char fps_array[FPS_PRECISION])
     int fps_int = (int)fps;
     int fps_dec = (int)((fps - fps_int) * 100);
     sprintf(fps_array, "%d,%02d FPS", fps_int, fps_dec);
+    fps_array[FPS_PRECISION - 1] = '\0';
 }
-
 
 /**
  * @brief Destroy and Quit SDL
@@ -200,13 +227,33 @@ void translate_fps_to_text(double fps, char fps_array[FPS_PRECISION])
  * @param Astres
  * @param trajTextures
  */
-void quit_universe(SDL_Window *window, SDL_Renderer *renderer,
-                   Astre *Astres, SDL_Texture *trajTexture)
+void quit_universe(
+    SDL_Window *window,
+    SDL_Renderer *renderer,
+    Astre *Astres,
+    SDL_Texture *trajTexture,
+    SDL_Texture *textTexture,
+    SDL_Surface *textSurface,
+    SDL_Texture *fpsTexture,
+    SDL_Surface *fpsSurface,
+    TTF_Font *font)
 {
-    for (int i = 0 ; i < NB_ASTRES ; i++) {
-        SDL_DestroyTexture((Astres+i)->astre);
+    for (int i = 0; i < NB_ASTRES; i++)
+    {
+        SDL_DestroyTexture((Astres + i)->astre);
     }
-    SDL_DestroyTexture(trajTexture);
+    if (textSurface)
+        SDL_FreeSurface(textSurface);
+    if (textTexture)
+        SDL_DestroyTexture(textTexture);
+    if (fpsSurface)
+        SDL_FreeSurface(fpsSurface);
+    if (fpsTexture)
+        SDL_DestroyTexture(fpsTexture);
+    if (font)
+        TTF_CloseFont(font);
+    if (trajTexture)
+        SDL_DestroyTexture(trajTexture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
@@ -224,17 +271,17 @@ int which_key(SDL_Event event)
 {
     switch (event.key.keysym.sym)
     {
-        case SDLK_RIGHT:
+    case SDLK_RIGHT:
         return -1;
 
-        case SDLK_LEFT:
-            return 1;
+    case SDLK_LEFT:
+        return 1;
 
-        case SDLK_ESCAPE:
-            return 2;
+    case SDLK_ESCAPE:
+        return 2;
 
-        default:
-            break;
+    default:
+        break;
     }
     return 0;
 }
@@ -248,8 +295,9 @@ int which_key(SDL_Event event)
 int check_event()
 {
     SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch(event.type)
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
         {
         case SDL_QUIT:
             return 2;
@@ -271,12 +319,12 @@ void user_input_processing(int test, bool *hold, int *delay_milliseconds)
         *hold = false;
         break;
     case 1:
-        if (*delay_milliseconds < added_delay*10) 
-            (*delay_milliseconds)+= added_delay;
+        if (*delay_milliseconds < added_delay * 10)
+            (*delay_milliseconds) += added_delay;
         break;
     case -1:
-        if (*delay_milliseconds > added_delay) 
-            (*delay_milliseconds)-=added_delay;
+        if (*delay_milliseconds > added_delay)
+            (*delay_milliseconds) -= added_delay;
         break;
     default:
         break;
